@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tailwindcss-cli@latest build ./css/src/app.css -o ./css/dist/app.css && live-server --ignore=./css/src/*"
+    "build": "npx tailwindcss-cli@latest build ./css/src/app.css -o ./css/dist/app.css"
   },
   "author": "",
   "license": "ISC",

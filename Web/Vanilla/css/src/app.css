@@ -7,4 +7,22 @@
   .rounded-button {
     @apply py-3 px-4 shadow-md cursor-pointer rounded-full;
   }
+
+  .list-container {
+    @apply bg-gray-100 rounded-sm shadow-md px-3 py-3;
+
+    min-width: 300px;
+  }
+
+  .list-container-header {
+    @apply w-full flex flex-row justify-between items-center;
+  }
+
+  .list-container-header__title {
+    @apply text-gray-600 font-semibold font-sans;
+  }
+
+  .ellipsis-button {
+    @apply px-2 py-2 text-gray-500 font-semibold rounded-sm cursor-move;
+  }
 }
