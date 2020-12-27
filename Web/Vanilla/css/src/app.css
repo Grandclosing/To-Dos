@@ -1,0 +1,10 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .rounded-button {
+    @apply py-3 px-4 shadow-md cursor-pointer rounded-full;
+  }
+}
