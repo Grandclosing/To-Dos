@@ -29,6 +29,36 @@
   .add-item-container {
     @apply w-full flex flex-row items-center px-3 py-1 items-start gap-x-2 hover:bg-gray-200 cursor-pointer;
   }
+
+  .to-do-item-container {
+    @apply bg-white shadow-sm px-3 py-1 my-2 group flex flex-row-reverse justify-between gap-x-3 hover:bg-gray-100 items-center cursor-pointer;
+  }
+
+  .to-do-label {
+    @apply font-sans text-gray-600 text-sm;
+  }
+
+  .to-do-item-edit-button {
+    @apply opacity-0 cursor-pointer px-2 py-2 hover:bg-gray-300;
+  }
+
+  .add-card-textbox {
+    @apply w-full rounded-md bg-white shadow-sm mb-3 outline-none px-3 py-1 text-sm overflow-hidden border-none resize-none;
+
+    min-height: 100px;
+  }
+
+  .add-card-button-container {
+    @apply flex flex-row justify-between;
+  }
+
+  .add-card-button {
+    @apply text-white rounded-sm cursor-pointer text-center px-3 py-1;
+  }
+
+  .add-card-button:hover {
+    filter: brightness(1.2);
+  }
 }
 
 .lighten-icon {

@@ -3,6 +3,10 @@ let columns;
 let dragCount = 0;
 let dragSourceColumn = null;
 
+/* stores the selected add item container, as well as its parent 
+   so it can be put back after being removed */
+let selectedAddItemContainer = {elem: null, parent: null};
+
 let mockColumnList = [
     {
         title: "To-Do",
@@ -30,7 +34,9 @@ let mockColumnList = [
 
 window.onload = function() {
     generateColumns();
+
     initializeDraggables();
+    initializeAddCardButtonEvents();
 }
 
 function generateColumns() {
@@ -94,11 +100,11 @@ function createAddItemContainer() {
     addItemContainer.className = 'add-item-container';
 
     let addItemIcon = document.createElement('i');
-    addItemIcon.classList.add('lighten-icon', 'fas', 'fa-plus');
+    addItemIcon.classList.add('lighten-icon', 'fas', 'fa-plus', 'pointer-events-none');
     addItemContainer.appendChild(addItemIcon);
 
     let addItemLabel = document.createElement('p');
-    addItemLabel.classList.add('font-sans', 'text-gray-500');
+    addItemLabel.classList.add('font-sans', 'text-gray-500', 'pointer-events-none');
     addItemLabel.innerHTML = 'Add an item';
     addItemContainer.appendChild(addItemLabel);
 
@@ -107,14 +113,14 @@ function createAddItemContainer() {
 
 function createListItem(itemText) {
     let itemContainer = document.createElement('div');
-    itemContainer.classList.add('bg-white', 'shadow-sm', 'px-3', 'py-1', 'my-2', 'group', 'flex', 'flex-row-reverse', 'justify-between', 'gap-x-3', 'hover:bg-gray-100');
+    itemContainer.className = 'to-do-item-container';
 
     let itemLabel = document.createElement('p');
-    itemLabel.classList.add('font-sans', 'text-gray-600', 'text-sm');
+    itemLabel.className = 'to-do-label';
     itemLabel.innerHTML = itemText; 
 
     let itemEditButton = document.createElement('i');
-    itemEditButton.classList.add('fa', 'fa-pen', 'opacity-0', 'cursor-pointer', 'group-hover:opacity-30', 'hover:bg-gray-300', 'px-2', 'py-2');
+    itemEditButton.classList.add('fa', 'fa-pen', 'to-do-item-edit-button', 'group-hover:opacity-30');
     itemContainer.appendChild(itemEditButton);
 
     itemContainer.appendChild(itemLabel);
@@ -184,4 +190,108 @@ function columnDrop(e) {
     }
 
     return false;
+}
+
+function initializeAddCardButtonEvents() {
+    let containers = document.getElementsByClassName('add-item-container');
+
+    for(let c of containers) {
+        c.addEventListener('click', openAddCardDialog, false);
+    }
+
+    document.body.addEventListener('click', cancelAddCardDialog, false);
+}
+
+function openAddCardDialog(e) {
+    // older browsers don't support 'pointer-events: none;' this is a fallback 
+    if(e.target !== this)
+        return;
+
+    // cancel any existing open dialogs before making the new one
+    cancelAddCardDialog();
+
+    selectedAddItemContainer.elem = e.target;
+    selectedAddItemContainer.parent = e.target.parentNode;
+
+    let dialog = createAddCardDialog();
+
+    selectedAddItemContainer.parent.removeChild(selectedAddItemContainer.elem);
+
+    selectedAddItemContainer.parent.appendChild(dialog);
+
+    dialog.firstChild.focus();
+}
+
+function createAddCardDialog() {
+    let addCardDialogContainer = document.createElement('div');
+    addCardDialogContainer.className = 'add-card-dialog';
+    
+    let addCardTextBox = document.createElement('textarea');
+    addCardTextBox.className = 'add-card-textbox';
+    addCardTextBox.setAttribute('placeholder', 'Enter text for this item...');
+    addCardDialogContainer.appendChild(addCardTextBox);
+
+    addCardTextBox.addEventListener('change', function() {
+        resizeTextBox(this);
+    }, false);
+    addCardTextBox.addEventListener('cut', function() {
+        resizeTextBoxDelay(this);
+    }, false);
+    addCardTextBox.addEventListener('paste', function() {
+        resizeTextBoxDelay(this);
+    }, false);
+    addCardTextBox.addEventListener('drop', function() {
+        resizeTextBoxDelay(this);
+    }, false);
+    addCardTextBox.addEventListener('keydown', function() {
+        resizeTextBoxDelay(this);
+    }, false);
+
+    let addCardButtonContainer = document.createElement('div');
+    addCardButtonContainer.className = 'add-card-button-container';
+    addCardDialogContainer.appendChild(addCardButtonContainer);
+
+    let addCardConfirmButton = document.createElement('div');
+    addCardConfirmButton.innerHTML = 'Confirm';
+    addCardConfirmButton.classList.add('add-card-button', 'bg-green-500');
+    addCardButtonContainer.appendChild(addCardConfirmButton);
+
+    let addCardCancelButton = document.createElement('div');
+    addCardCancelButton.innerHTML = 'Cancel';
+    addCardCancelButton.classList.add('add-card-button', 'bg-red-500', 'js-cancel-add-card');
+    addCardButtonContainer.appendChild(addCardCancelButton);
+
+    addCardCancelButton.addEventListener('click', cancelAddCardDialog, false);
+
+    return addCardDialogContainer;
+}
+
+function resizeTextBox(elem) {
+    if(elem) {
+        elem.style.height = 'auto';
+        elem.style.height = elem.scrollHeight + 'px';
+    }
+}
+
+function resizeTextBoxDelay(elem) {
+    setTimeout(function() {
+        resizeTextBox(elem);
+    }, 0);
+}
+
+function cancelAddCardDialog(e) {
+    if(selectedAddItemContainer.elem && selectedAddItemContainer.parent) {
+        let dialog = document.getElementsByClassName('add-card-dialog')[0];
+
+        // Sort-of modeled after how Trello does it. Clicking anywhere while the dialog is open, except certain places, cancels the dialog
+        if((dialog.contains(e.target) && !e.target.classList.contains('js-cancel-add-card')) || 
+            selectedAddItemContainer.elem.contains(e.target))
+            return;
+
+        selectedAddItemContainer.parent.removeChild(selectedAddItemContainer.parent.lastChild);
+        selectedAddItemContainer.parent.appendChild(selectedAddItemContainer.elem);
+
+        selectedAddItemContainer.elem = null;
+        selectedAddItemContainer.parent = null;
+    }
 }
